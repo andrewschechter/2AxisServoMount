@@ -1,0 +1,148 @@
+#include <Servo.h>
+
+const int SW_pin = 2; // digital pin connected to switch output
+const int X_pin = 1; // analog pin connected to X output
+const int Y_pin = 0; // analog pin connected to Y output
+int ledPin = 12;
+int buttonCounter = 0;
+
+Servo servoY;
+Servo servoX;
+
+void setup() {
+  servoX.attach(9);
+  servoY.attach(10); 
+  pinMode(SW_pin, INPUT);
+  pinMode(ledPin, OUTPUT);
+  digitalWrite(SW_pin, HIGH);
+  Serial.begin(9600);
+}
+
+void loop() {
+  /*
+  int buttonState = digitalRead(SW_pin); 
+  
+  if(buttonState == 0) {
+    digitalWrite(ledPin, HIGH);
+    buttonCounter++;
+  }
+  else {
+  digitalWrite(ledPin, LOW);
+  delay(100);
+  }
+  //Serial.print(buttonState);
+  Serial.println(buttonCounter);
+  */
+
+
+while(buttonCounter % 2 == 0) {  //while buttonCounter is even
+Serial.println("manual");
+//controlled by joystick
+controllerMode();
+  
+ int buttonState = digitalRead(SW_pin); 
+  if(buttonState == 0) {
+    digitalWrite(ledPin, HIGH);
+    buttonCounter++;
+    }
+    Serial.print("state:   ");
+    Serial.println(buttonState);
+    Serial.print("counter: ");
+    Serial.println(buttonCounter);
+    }
+
+while(buttonCounter % 2 != 0) { //while buttonCounter is odd
+Serial.println("automatic");
+//programmed movement
+autoMode();
+  /*
+ int buttonState = digitalRead(SW_pin);
+  if(buttonState == 1) {
+    digitalWrite(ledPin, LOW);
+    buttonCounter++;
+    }
+    Serial.print("state:   ");
+    Serial.println(buttonState);
+    Serial.print("counter: ");
+    Serial.println(buttonCounter);
+    }
+    */
+
+}
+}
+void controllerMode() {
+  int x = analogRead(X_pin);
+  int y = analogRead(Y_pin);
+  int button = digitalRead(SW_pin); 
+
+  x = map(x, 0, 1023, 20, 160);
+  y = map(y, 0, 1023, 20, 100);
+
+  servoX.write(x);
+  servoY.write(y);
+  delay(100);
+  /*
+  Serial.print("Switch:  ");
+  Serial.print(digitalRead(SW_pin));
+  Serial.print("\n");
+  Serial.print("X-axis: ");
+  Serial.print(analogRead(X_pin));
+  Serial.print(" ");
+  Serial.print(x);
+  Serial.print("\n");
+  Serial.print("Y-axis: ");
+  Serial.print(analogRead(Y_pin));;
+  Serial.print(" ");
+  Serial.println(y);
+  Serial.print("\n\n");
+  */
+}
+
+//option of looping within the function or using the while loop above
+void autoMode() {
+ int bufferTime = 10; //duration of buffer between for loops
+ //int n = 0;  //number of loops
+ 
+ //while(n < 2) {
+ 
+ for(int i = 20; i <= 159; i++)
+  {
+  servoX.write(i);
+  int autoY = map(i, 20, 159, 20, 100);
+  servoY.write(autoY);
+  delay(bufferTime);
+  int buttonState = digitalRead(SW_pin);
+  if(buttonState == 0) {
+    digitalWrite(ledPin, LOW);
+    delay(500);
+    buttonCounter++;
+    
+    }
+    Serial.print("state:   ");
+    Serial.println(buttonState);
+    Serial.print("counter: ");
+    Serial.println(buttonCounter);
+    }
+  
+ for(int i = 159; i >= 20; i--) {
+  servoX.write(i);
+  int autoY = map(i, 20, 159, 20, 100);
+  servoY.write(autoY);
+  delay(bufferTime); 
+  int buttonState = digitalRead(SW_pin);
+ 
+ if(buttonState == 0) {
+    digitalWrite(ledPin, LOW);
+    delay(500);
+    buttonCounter++;
+    
+    }
+    Serial.print("state:   ");
+    Serial.println(buttonState);
+    Serial.print("counter: ");
+    Serial.println(buttonCounter);
+    }
+ }
+ //n = n + 1;  //count loops
+ //}
+
